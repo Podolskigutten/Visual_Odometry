@@ -1,12 +1,6 @@
 import numpy as np
 import cv2
 
-
-
-
-import numpy as np
-import cv2
-
 # Simulate camera intrinsics
 K = np.array([[800, 0, 320],
               [0, 800, 240],
