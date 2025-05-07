@@ -1,6 +1,7 @@
 # Test for new file yeeehaaaaa
 import cv2
 import os
+import numpy as np
 
 class ImageLoader:
     def __init__(self, filepath, rate_hz=10):
@@ -61,3 +62,34 @@ class FeatureDetecor:
                 print(f"Processed {i + 1}/{len(images)} images")
                 
         return all_features
+    
+
+
+class FeatureMatcher:
+    def __init__(self, method='SIFT', ratio_threshold=0.75):
+        self.method = method
+        self.ratio_threshold = ratio_threshold
+
+    def match_features(kp1, des1, kp2, des2, method='SIFT', ratio_threshold=0.75):
+        # Create matcher based on the method
+        if method == 'SIFT' or method == 'SURF':
+            # SIFT and SURF use L2 norm
+            matcher = cv2.BFMatcher(cv2.NORM_L2, crossCheck=False)
+        else:
+            # ORB and AKAZE use Hamming distance
+            matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+        
+        # Match descriptors using kNN
+        matches = matcher.knnMatch(des1, des2, k=2)
+        
+        # Apply ratio test to find good matches
+        good_matches = []
+        for m, n in matches:
+            if m.distance < ratio_threshold * n.distance:
+                good_matches.append(m)
+        
+        # Extract coordinates of matched keypoints
+        coords1 = np.float32([kp1[m.queryIdx].pt for m in good_matches])
+        coords2 = np.float32([kp2[m.trainIdx].pt for m in good_matches])
+        
+        return coords1, coords2
