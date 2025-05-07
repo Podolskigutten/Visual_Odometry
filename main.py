@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import matplotlib as plt
-import cv2 as cv
-from dataloader import ImageLoader
+import cv2 
+from image_processing import ImageLoader, FeatureDetecor
 
 
 
@@ -15,6 +15,8 @@ def main():
     images = loader.load_images()
     print(f"Loaded {len(images)} images")
 
+    detector = FeatureDetecor('SIFT') # Choose between SIFT, ORB and AKAZE
+    features = detector.detect_all_features(images)
 
 
 if __name__ == "__main__":
