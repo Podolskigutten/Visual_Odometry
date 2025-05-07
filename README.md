@@ -1,2 +1,2 @@
 # Visual_Odometry
-Visual odometry ofr computer vision course
+Visual odometry for computer vision course at UiO
