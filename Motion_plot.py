@@ -21,12 +21,14 @@ def read_ground_truth_positions(file_path):
 def estimate_motion_from_correspondences(pts1, pts2, K):
     E, mask = cv2.findEssentialMat(pts1, pts2, K, method=cv2.RANSAC, threshold=1.0, prob=0.999)
     _, R, t, _ = cv2.recoverPose(E, pts1, pts2, K)
+    inliers = mask.ravel().tolist()
+    print(f"Number of inliers: {sum(inliers)}")
     return R, t
 
 # Main visualization loop: draw ground truth and estimated motion
 def plot_with_estimated_motion(ground_truth_positions, R, t, image_folder, K, win_size=800, max_frames=1000):
     center = win_size // 2
-    scale = 100
+    scale = 1
     canvas = np.zeros((win_size, win_size, 3), dtype=np.uint8)
 
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
@@ -66,11 +68,14 @@ def plot_with_estimated_motion(ground_truth_positions, R, t, image_folder, K, wi
 
         # Show updated canvas
         cv2.imshow('Trajectory', canvas)
+        key = cv2.waitKey(30)
         if cv2.waitKey(30) == 27:
             break
 
     cv2.destroyAllWindows()
+    return key
 
+"""
 # Example usage
 if __name__ == "__main__":
     # Load ground truth
@@ -92,3 +97,4 @@ if __name__ == "__main__":
 
     # Plot ground truth and estimated trajectory
     #plot_with_estimated_motion(ground_truth_positions, R, t, image_folder, K, max_frames=1000)
+"""

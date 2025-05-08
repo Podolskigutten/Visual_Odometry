@@ -70,7 +70,7 @@ class FeatureMatcher:
         self.method = method
         self.ratio_threshold = ratio_threshold
 
-    def match_features(kp1, des1, kp2, des2, method='SIFT', ratio_threshold=0.75):
+    def match_features(self, kp1, des1, kp2, des2, method='SIFT', ratio_threshold=0.75):
         # Create matcher based on the method
         if method == 'SIFT' or method == 'SURF':
             # SIFT and SURF use L2 norm
