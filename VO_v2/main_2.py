@@ -90,8 +90,16 @@ def main():
         if key == 27:  # ESC key
             print("ESC pressed. Exiting...")
             break
+    # Check for ESC key to exit
+    print("\nProcessing complete. Press ESC to exit.")
+    while True:
+        key = cv2.waitKey(0)  # Wait indefinitely for a key press
+        if key == 27:  # ESC key
+            print("ESC pressed. Exiting...")
+            break
+    cv2.destroyAllWindows()
 
-    #cv2.destroyAllWindows()
+   
 
 
 if __name__ == "__main__":
