@@ -122,14 +122,13 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
     cv2.putText(display_canvas, length_text, (50, 80),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-    for img_path in image_list:
-        img = cv2.imread(img_path)
-        if img is not None:
-            img_resized = cv2.resize(img, (int(1920 / 3), int(1080 / 3)))
-            cv2.imshow('Image Window', img_resized)
-            cv2.waitKey(0)  # Wait for key press to show the next image
-        else:
-            print(f"Failed to load image: {img_path}")
+    if 0 <= frame_index < len(image_list):
+        img = image_list[frame_index]
+        img_resized = cv2.resize(img, (int(1920 / 3), int(1080 / 3)))
+        cv2.imshow('Image Window', img_resized)
+        cv2.waitKey(1)  # You can adjust delay or make it 0 for key press pause
+    else:
+        print(f"No image available at index {frame_index}")
 
     # Show updated canvas
     cv2.imshow('Trajectory', display_canvas)

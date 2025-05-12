@@ -41,7 +41,7 @@ class ImageLoader:
 
                 
         # Add also groudn truth output synced with images
-        return images, ground_truth_positions
+        return images#, ground_truth_positions
 
 
 class FeatureDetecor:

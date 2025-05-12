@@ -9,6 +9,7 @@ def main():
     # File paths
     print("OpenCV version:", cv2.__version__)
     ground_truth_file = 'Images/poses_ground_truth/00.txt'
+    image_folder = 'Images/00/image_0/'
     ground_truth_positions = read_ground_truth_positions(ground_truth_file)
 
     # Camera intrinsics (KITTI)
@@ -23,7 +24,7 @@ def main():
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'SIFT'  # Choose between SIFT, ORB and AKAZE
+    method = 'ORB'  # Choose between SIFT, ORB and AKAZE
 
     # Detect features in all images
     detector = FeatureDetecor(method)
