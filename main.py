@@ -36,7 +36,7 @@ def main():
     t_total = np.zeros((3, 1))  # Zero translation vector
 
     # Scale factor for visualization (may need adjustment)
-    initial_scale = 0.75  # Increased scale factor to make motion more visible
+    initial_scale = 0.75 * (10/rate)  # Increased scale factor to make motion more visible
 
     # Create visualization window
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
