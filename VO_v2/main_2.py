@@ -7,6 +7,7 @@ from motion_plot_2 import read_ground_truth_positions, estimate_motion_from_corr
 
 def main():
     # File paths
+    print("OpenCV version:", cv2.__version__)
     ground_truth_file = 'Images/poses_ground_truth/00.txt'
     image_folder = 'Images/00/image_0/'
     ground_truth_positions = read_ground_truth_positions(ground_truth_file)
