@@ -21,21 +21,24 @@ def read_ground_truth_positions(file_path):
 
 # Estimate Essential matrix and recover relative camera motion
 def estimate_motion_from_correspondences(pts1, pts2, K):
-    # Find essential matrix with RANSAC
     E, mask = cv2.findEssentialMat(pts1, pts2, K, method=cv2.RANSAC, threshold=1.0, prob=0.999)
-
-    # Recover pose (camera motion)
     points, R, t, mask_pose = cv2.recoverPose(E, pts1, pts2, K, mask=mask)
+    inlier_pts1 = pts1[mask_pose.ravel() == 1]
+    inlier_pts2 = pts2[mask_pose.ravel() == 1]
+    return R, t, inlier_pts1, inlier_pts2
 
-    # Count inliers from the final mask
-    inliers = np.sum(mask_pose)
+    # Count inliers
+    inliers = inlier_pts1.shape[0]
     print(f"Number of inliers: {inliers}")
 
-    return R, t
+    return R, t, inlier_pts1, inlier_pts2
+
 
 
 # Main visualization loop: draw ground truth and estimated motion
-def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_list, K, frame_index, max_frames=1000):
+def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_list, K, frame_index, inlier_pts1=None, inlier_pts2=None, max_frames=1000):
+
+
     # Create persistent static storage for trajectory history
     if not hasattr(plot_with_estimated_motion, 'canvas'):
         win_size = 800
@@ -123,12 +126,22 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
     if 0 <= frame_index < len(image_list):
-        img = image_list[frame_index]
+        img = image_list[frame_index].copy()  # COPY HERE
+
+        # Draw inlier points if available
+        if inlier_pts2 is not None and len(inlier_pts2) > 0:
+            inlier_pts2 = inlier_pts2.reshape(-1, 2)
+
+            for pt in inlier_pts2:
+                pt_int = tuple(np.round(pt).astype(int))
+                cv2.circle(img, pt_int, 4, (0, 255, 0), 1)  # Bright green
+
         img_resized = cv2.resize(img, (int(1920 / 3), int(1080 / 3)))
         cv2.imshow('Image Window', img_resized)
-        cv2.waitKey(1)  # You can adjust delay or make it 0 for key press pause
+        cv2.waitKey(1)
     else:
         print(f"No image available at index {frame_index}")
+
 
     # Show updated canvas
     cv2.imshow('Trajectory', display_canvas)

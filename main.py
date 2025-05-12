@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 from image_processing import ImageLoader, FeatureDetecor, FeatureMatcher
-from motion_plot import read_ground_truth_positions, estimate_motion_from_correspondences, plot_with_estimated_motion
+from Motion_plot import read_ground_truth_positions, estimate_motion_from_correspondences, plot_with_estimated_motion
 
 
 def main():
@@ -62,7 +62,7 @@ def main():
             continue
 
         # Estimate motion from matched feature coordinates
-        R, t = estimate_motion_from_correspondences(coords1, coords2, K)
+        R, t, inlier_pts1, inlier_pts2 = estimate_motion_from_correspondences(coords1, coords2, K)
 
         # IMPORTANT: Update rotation first, then translation
         # For visual odometry, we need to invert the motion (since the camera moves opposite to perceived motion)
@@ -78,12 +78,14 @@ def main():
 
         # Visualize current trajectory
         key = plot_with_estimated_motion(
-            ground_truth_positions[:i + 2],  # Only plot up to current frame
+            ground_truth_positions[:i + 2],
             R_total,
             t_total,
             images,
             K,
             frame_index=i + 1,
+            inlier_pts1=inlier_pts1,
+            inlier_pts2=inlier_pts2,
             max_frames=i + 2
         )
 
