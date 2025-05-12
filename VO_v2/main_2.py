@@ -81,7 +81,7 @@ def main():
             ground_truth_positions[:i + 2],  # Only plot up to current frame
             R_total,
             t_total,
-            image_folder,
+            images,
             K,
             frame_index=i + 1,
             max_frames=i + 2
