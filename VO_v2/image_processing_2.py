@@ -38,6 +38,8 @@ class ImageLoader:
             # Print progress
             if (i + 1) % 100 == 0:
                 print(f"Loaded {i + 1}/{len(self.image_files)} images")
+
+                
         # Add also groudn truth output synced with images
         return images#, ground_truth_positions
 
