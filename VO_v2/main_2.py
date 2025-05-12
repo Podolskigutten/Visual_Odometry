@@ -24,7 +24,7 @@ def main():
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'SIFT'  # Choose between SIFT, ORB and AKAZE
+    method = 'ORB'  # Choose between SIFT, ORB and AKAZE
 
     # Detect features in all images
     detector = FeatureDetecor(method)
@@ -83,6 +83,7 @@ def main():
             t_total,
             image_folder,
             K,
+            frame_index=i + 1,
             max_frames=i + 2
         )
 

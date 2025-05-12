@@ -35,7 +35,7 @@ def estimate_motion_from_correspondences(pts1, pts2, K):
 
 
 # Main visualization loop: draw ground truth and estimated motion
-def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_folder, K, max_frames=1000):
+def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_folder, K, frame_index, max_frames=1000):
     # Create persistent static storage for trajectory history
     if not hasattr(plot_with_estimated_motion, 'canvas'):
         win_size = 800
@@ -121,6 +121,13 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_f
     length_text = f"Path Length: {path_length:.2f}"
     cv2.putText(display_canvas, length_text, (50, 80),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+    img_path = os.path.join(image_folder, f"{frame_index:06d}.png")
+    if os.path.exists(img_path):
+        img = cv2.imread(img_path)
+        if img is not None:
+            img_resized = cv2.resize(img, (int(1920/3), int(1080/3)))
+            cv2.imshow('Image Window', img_resized)
 
     # Show updated canvas
     cv2.imshow('Trajectory', display_canvas)
