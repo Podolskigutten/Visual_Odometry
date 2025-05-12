@@ -20,11 +20,12 @@ def main():
     # Load images
     path = os.path.join("Images", "00", "image_0")
     loader = ImageLoader(path)  # Load all available images
-    images = loader.load_images()
+    images, ground_truth_positions = loader.load_images() # Images and ground truth positions synced
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
     method = 'SIFT'  # Choose between SIFT, ORB and AKAZE
+    print(f"Using {method} for detection")
 
     # Detect features in all images
     detector = FeatureDetecor(method)
