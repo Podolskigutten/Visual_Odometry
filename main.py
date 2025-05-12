@@ -2,10 +2,16 @@ import os
 import numpy as np
 import cv2
 from image_processing import ImageLoader, FeatureDetecor, FeatureMatcher
-from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
+from Motion_plot import read_ground_truth_positions, estimate_motion_from_correspondences, plot_with_estimated_motion
 
 
 def main():
+    # File paths
+    print("OpenCV version:", cv2.__version__)
+    ground_truth_file = 'Images/poses_ground_truth/00.txt'
+    image_folder = 'Images/00/image_0/'
+    ground_truth_positions = read_ground_truth_positions(ground_truth_file)
+
     # Camera intrinsics (KITTI)
     K = np.array([[718.856, 0, 607.1928],
                   [0, 718.856, 185.2157],
@@ -20,7 +26,7 @@ def main():
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'SIFT'  # Choose between SIFT, ORB and AKAZE
+    method = 'ORB'  # Choose between SIFT, ORB and AKAZE
 
     # Detect features in all images
     detector = FeatureDetecor(method)
@@ -35,7 +41,7 @@ def main():
     t_total = np.zeros((3, 1))  # Zero translation vector
 
     # Scale factor for visualization (may need adjustment)
-    initial_scale = 0.75 * (10/rate)  # Increased scale factor to make motion more visible
+    initial_scale = 0.75  # Increased scale factor to make motion more visible
 
     # Create visualization window
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
@@ -58,7 +64,7 @@ def main():
             continue
 
         # Estimate motion from matched feature coordinates
-        R, t = estimate_motion_from_correspondences(coords1, coords2, K)
+        R, t, inlier_pts1, inlier_pts2 = estimate_motion_from_correspondences(coords1, coords2, K)
 
         # IMPORTANT: Update rotation first, then translation
         # For visual odometry, we need to invert the motion (since the camera moves opposite to perceived motion)
@@ -74,12 +80,14 @@ def main():
 
         # Visualize current trajectory
         key = plot_with_estimated_motion(
-            ground_truth_positions[:i + 2],  # Only plot up to current frame
+            ground_truth_positions[:i + 2],
             R_total,
             t_total,
             images,
             K,
             frame_index=i + 1,
+            inlier_pts1=inlier_pts1,
+            inlier_pts2=inlier_pts2,
             max_frames=i + 2
         )
 
@@ -87,7 +95,7 @@ def main():
         if key == 27:  # ESC key
             print("ESC pressed. Exiting...")
             break
-    
+
     # Check for ESC key to exit
     print("\nProcessing complete. Press ESC to exit.")
     while True:
@@ -96,8 +104,6 @@ def main():
             print("ESC pressed. Exiting...")
             break
     cv2.destroyAllWindows()
-
-   
 
 
 if __name__ == "__main__":
