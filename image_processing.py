@@ -4,45 +4,86 @@ import os
 import numpy as np
 
 
+import os
+import cv2
+
 class ImageLoader:
-    def __init__(self, filepath, desired_rate=None, max_images=None):
+    def __init__(self, path_image, path_ground_truth, desired_rate=None, max_images=None):
         self.default_rate = 10  # original frequency (Hz)
-        self.filepath = filepath
+        self.image_path = path_image
+        self.ground_truth_path = path_ground_truth
         self.max_images = max_images
 
         # Load all .png files
         all_files = sorted([
-            f for f in os.listdir(filepath)
+            f for f in os.listdir(path_image)
             if f.lower().endswith('.png')
         ])
+        
+        # Load all ground truth positions (before subsampling)
+        self.all_ground_truth = self._load_all_ground_truth()
 
         # Subsample based on desired rate
         if desired_rate is not None and desired_rate < self.default_rate:
             step = int(self.default_rate / desired_rate)
             self.image_files = all_files[::step]
+            # Also subsample ground truth indices
+            self.selected_indices = list(range(0, len(all_files), step))
         else:
             self.image_files = all_files
+            self.selected_indices = list(range(len(all_files)))
 
         # Limit number of images if specified
         if max_images is not None:
             self.image_files = self.image_files[:max_images]
+            self.selected_indices = self.selected_indices[:max_images]
+
+    def _load_all_ground_truth(self):
+        """Load all ground truth positions from file"""
+        positions = []
+        with open(self.ground_truth_path, 'r') as f:
+            for line in f:
+                values = line.strip().split()
+                if len(values) == 12:
+                    try:
+                        x = float(values[3])  # 4th value (index 3)
+                        z = float(values[11])  # 12th value (index 11)
+                        positions.append((x, z))
+                    except ValueError:
+                        # If there's an error, append None to maintain sync
+                        positions.append(None)
+                else:
+                    # If row doesn't have 12 values, append None
+                    positions.append(None)
+        return positions
 
     def load_images(self):
         images = []
-        for i, img_file in enumerate(self.image_files):
-            full_path = os.path.join(self.filepath, img_file)
+        ground_truth_positions = []
+        
+        for i, (img_file, gt_idx) in enumerate(zip(self.image_files, self.selected_indices)):
+            # Load image
+            full_path = os.path.join(self.image_path, img_file)
             img = cv2.imread(full_path)
+            
             if img is not None:
                 images.append(img)
+                
+                # Get corresponding ground truth (check bounds and None values)
+                if gt_idx < len(self.all_ground_truth) and self.all_ground_truth[gt_idx] is not None:
+                    ground_truth_positions.append(self.all_ground_truth[gt_idx])
+                else:
+                    # Skip this image if ground truth is invalid
+                    images.pop()  # Remove the image we just added
+                    print(f"Warning: Skipping image {img_file} due to missing ground truth")
+                    continue
 
             # Print progress
             if (i + 1) % 100 == 0:
                 print(f"Loaded {i + 1}/{len(self.image_files)} images")
 
-                
-        # Add also groudn truth output synced with images
-        return images#, ground_truth_positions
-
+        print(f"Successfully loaded {len(images)} images with synchronized ground truth")
+        return images, ground_truth_positions
 
 class FeatureDetecor:
     def __init__(self, method='SIFT'):
