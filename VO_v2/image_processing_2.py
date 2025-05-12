@@ -64,7 +64,7 @@ class FeatureDetecor:
             all_features.append((keypoints, descriptors))
 
             # Optional: Print progress
-            if (i + 1) % 10 == 0:
+            if (i + 1) % 100 == 0:
                 print(f"Processed {i + 1}/{len(images)} images")
 
         return all_features
