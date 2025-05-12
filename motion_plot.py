@@ -2,23 +2,6 @@ import cv2
 import numpy as np
 import os
 
-
-# Read ground truth (x, z) from the 3x4 matrix (positions only)
-def read_ground_truth_positions(file_path):
-    positions = []
-    with open(file_path, 'r') as f:
-        for line in f:
-            values = line.strip().split()
-            if len(values) == 12:
-                try:
-                    x = float(values[3])
-                    z = float(values[11])
-                    positions.append((x, z))
-                except ValueError:
-                    continue
-    return positions
-
-
 # Estimate Essential matrix and recover relative camera motion
 def estimate_motion_from_correspondences(pts1, pts2, K):
     E, mask = cv2.findEssentialMat(pts1, pts2, K, method=cv2.RANSAC, threshold=1.0, prob=0.999)

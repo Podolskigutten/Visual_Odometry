@@ -2,15 +2,10 @@ import os
 import numpy as np
 import cv2
 from image_processing import ImageLoader, FeatureDetecor, FeatureMatcher
-from Motion_plot import read_ground_truth_positions, estimate_motion_from_correspondences, plot_with_estimated_motion
+from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 
 def main():
-    # File paths
-    print("OpenCV version:", cv2.__version__)
-    ground_truth_file = 'Images/poses_ground_truth/00.txt'
-    image_folder = 'Images/00/image_0/'
-    ground_truth_positions = read_ground_truth_positions(ground_truth_file)
 
     # Camera intrinsics (KITTI)
     K = np.array([[718.856, 0, 607.1928],
