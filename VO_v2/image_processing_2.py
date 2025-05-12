@@ -5,16 +5,25 @@ import numpy as np
 
 
 class ImageLoader:
-    def __init__(self, filepath, max_images=None):
-        self.default_rate = 10  # original rate of images
+    def __init__(self, filepath, desired_rate=None, max_images=None):
+        self.default_rate = 10  # original frequency (Hz)
         self.filepath = filepath
         self.max_images = max_images
-        self.image_files = sorted([
+
+        # Load all .png files
+        all_files = sorted([
             f for f in os.listdir(filepath)
-            if f.lower().endswith(('.png'))
+            if f.lower().endswith('.png')
         ])
 
-        # Limit the number of images if specified
+        # Subsample based on desired rate
+        if desired_rate is not None and desired_rate < self.default_rate:
+            step = int(self.default_rate / desired_rate)
+            self.image_files = all_files[::step]
+        else:
+            self.image_files = all_files
+
+        # Limit number of images if specified
         if max_images is not None:
             self.image_files = self.image_files[:max_images]
 

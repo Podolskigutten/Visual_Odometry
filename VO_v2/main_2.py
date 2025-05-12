@@ -24,7 +24,7 @@ def main():
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'ORB'  # Choose between SIFT, ORB and AKAZE
+    method = 'SIFT'  # Choose between SIFT, ORB and AKAZE
 
     # Detect features in all images
     detector = FeatureDetecor(method)
@@ -91,6 +91,7 @@ def main():
         if key == 27:  # ESC key
             print("ESC pressed. Exiting...")
             break
+    
     # Check for ESC key to exit
     print("\nProcessing complete. Press ESC to exit.")
     while True:
