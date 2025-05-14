@@ -35,17 +35,17 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
         # Draw coordinate axes for reference
         cv2.line(plot_with_estimated_motion.canvas,
                  (plot_with_estimated_motion.center, plot_with_estimated_motion.center),
-                 (plot_with_estimated_motion.center + 100, plot_with_estimated_motion.center),
-                 (0, 125, 255), 1)  # X-axis (amber)
+                 (plot_with_estimated_motion.center + 25, plot_with_estimated_motion.center),
+                 (0, 125, 255), 2)  # X-axis (amber)
         cv2.line(plot_with_estimated_motion.canvas,
                  (plot_with_estimated_motion.center, plot_with_estimated_motion.center),
-                 (plot_with_estimated_motion.center, plot_with_estimated_motion.center - 100),
-                 (255, 125, 0), 1)  # Z-axis (blue)
+                 (plot_with_estimated_motion.center, plot_with_estimated_motion.center - 25),
+                 (255, 125, 0), 2)  # Z-axis (blue)
         cv2.putText(plot_with_estimated_motion.canvas, 'X',
-                    (plot_with_estimated_motion.center + 110, plot_with_estimated_motion.center + 15),
+                    (plot_with_estimated_motion.center + 25, plot_with_estimated_motion.center + 15),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 125, 255), 1)
         cv2.putText(plot_with_estimated_motion.canvas, 'Z',
-                    (plot_with_estimated_motion.center - 15, plot_with_estimated_motion.center - 110),
+                    (plot_with_estimated_motion.center - 20, plot_with_estimated_motion.center - 25),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 125, 0), 1)
 
     # Use references for better readability
