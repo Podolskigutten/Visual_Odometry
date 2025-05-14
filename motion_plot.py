@@ -108,22 +108,35 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
     cv2.putText(display_canvas, length_text, (50, 80),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-    if 0 <= frame_index < len(image_list):
-        img = image_list[frame_index].copy()  # COPY HERE
+    if 0 <= frame_index < len(image_list) - 1:
+        img1 = image_list[frame_index].copy()
+        img2 = image_list[frame_index + 1].copy()
 
-        # Draw inlier points if available
-        if inlier_pts2 is not None and len(inlier_pts2) > 0:
-            inlier_pts2 = inlier_pts2.reshape(-1, 2)
+        # Convert to color if grayscale
+        if len(img1.shape) == 2:
+            img1 = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
+        if len(img2.shape) == 2:
+            img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
 
-            for pt in inlier_pts2:
-                pt_int = tuple(np.round(pt).astype(int))
-                cv2.circle(img, pt_int, 4, (0, 255, 0), 1)  # Bright green
+        # Stack images side by side
+        img_combined = np.hstack((img1, img2))
+        width = img1.shape[1]
 
-        img_resized = cv2.resize(img, (int(1920 / 3), int(1080 / 3)))
-        cv2.imshow('Image Window', img_resized)
+        if inlier_pts1 is not None and inlier_pts2 is not None:
+            for pt1, pt2 in zip(inlier_pts1, inlier_pts2):
+                pt1 = tuple(np.round(pt1).astype(int))
+                pt2 = tuple(np.round(pt2).astype(int) + np.array([width, 0]))  # Offset second image x
+                color = tuple(np.random.randint(0, 255, 3).tolist())
+                cv2.circle(img_combined, pt1, 3, color, -1)
+                cv2.circle(img_combined, pt2, 3, color, -1)
+                cv2.line(img_combined, pt1, pt2, color, 1)
+
+        img_resized = cv2.resize(img_combined, (int(img_combined.shape[1] * 0.5), int(img_combined.shape[0] * 0.5)))
+        cv2.imshow('Feature Correspondences', img_resized)
         cv2.waitKey(1)
     else:
-        print(f"No image available at index {frame_index}")
+        print(f"No image pair available at index {frame_index}")
+
 
 
     # Show updated canvas
