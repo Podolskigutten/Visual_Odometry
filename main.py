@@ -4,9 +4,7 @@ import cv2
 from image_processing import ImageLoader, FeatureDetecor, FeatureMatcher
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
-
 def main():
-
     # Camera intrinsics (KITTI)
     K = np.array([[718.856, 0, 607.1928],
                   [0, 718.856, 185.2157],
