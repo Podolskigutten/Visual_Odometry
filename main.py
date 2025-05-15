@@ -5,14 +5,33 @@ from image_processing import ImageLoader, FeatureDetector, FeatureMatcher
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 def main():
-    # Camera intrinsics (KITTI)
-    K = np.array([[718.856, 0, 607.1928],
-                  [0, 718.856, 185.2157],
-                  [0, 0, 1]])
+    # Choose dataset
+    set = 0 # swap to 1 for set 01
+    if set == 0:
+        print("Data set 00 chosen")
+        # Camera intrinsics (KITTI)
+        K = np.array([[718.856, 0, 607.1928],
+                    [0, 718.856, 185.2157],
+                    [0, 0, 1]])
 
-    # Load images
-    path_images = os.path.join("Images", "00", "image_0")
-    path_ground_truth = 'Images/poses_ground_truth/00.txt'
+        # Load images
+        path_images = os.path.join("Images", "00", "image_0")
+        path_ground_truth = 'Images/poses_ground_truth/00.txt'
+
+    elif set == 1:
+        print("Data set 01 chosen")
+        # Camera intrinsics (KITTI)
+        K = np.array([[718.856, 0, 607.1928],
+                    [0, 718.856, 185.2157],
+                    [0, 0, 1]])
+
+        # Load images
+        path_images = os.path.join("Images", "01", "image_0")
+        path_ground_truth = 'Images/poses_ground_truth/01.txt'
+    else:
+        print("No valid dataset chosen")
+
+
     rate = 10
     loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
     images, ground_truth_positions = loader.load_images()
@@ -34,8 +53,8 @@ def main():
     t_total = np.zeros((3, 1))
 
     # Keyframe selection parameters
-    min_inliers = 60  # Minimum inliers for reliable motion estimation
-    min_translation = 0.75  # Minimum translation norm to consider a keyframe
+    min_inliers = 10  # Minimum inliers for reliable motion estimation
+    min_translation = 0.1  # Minimum translation norm to consider a keyframe
     last_keyframe_idx = 0
     keyframes = [0]  # Store keyframe indices
 
