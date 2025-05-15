@@ -6,7 +6,7 @@ from motion_plot import estimate_motion_from_correspondences, plot_with_estimate
 
 def main():
     # Choose dataset
-    set = 1 # swap to 1 for set 01
+    set = 0 # swap to 1 for set 01
     if set == 0:
         print("Data set 00 chosen")
         # Camera intrinsics (KITTI)
@@ -32,7 +32,7 @@ def main():
         print("No valid dataset chosen")
 
 
-    rate = 5
+    rate = 10
     loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
     images, ground_truth_positions = loader.load_images()
     print(f"Loaded {len(images)} images")
@@ -53,8 +53,8 @@ def main():
     t_total = np.zeros((3, 1))
 
     # Keyframe selection parameters
-    min_inliers = 10  # Minimum inliers for reliable motion estimation
-    min_translation = 0.1  # Minimum translation norm to consider a keyframe
+    min_inliers = 120  # Minimum inliers for reliable motion estimation
+    min_translation = 0.65  # Minimum translation norm to consider a keyframe
     last_keyframe_idx = 0
     keyframes = [0]  # Store keyframe indices
 

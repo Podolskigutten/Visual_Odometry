@@ -23,6 +23,7 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
         plot_with_estimated_motion.prev_gt = (plot_with_estimated_motion.center, plot_with_estimated_motion.center)
         plot_with_estimated_motion.prev_est = (plot_with_estimated_motion.center, plot_with_estimated_motion.center)
         plot_with_estimated_motion.estimated_path = []
+        plot_with_estimated_motion.draw_lines = True  # Initialize toggle state for correspondence lines
         cv2.line(plot_with_estimated_motion.canvas,
                  (plot_with_estimated_motion.center, plot_with_estimated_motion.center),
                  (plot_with_estimated_motion.center + 25, plot_with_estimated_motion.center),
@@ -66,9 +67,9 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
         if point_idx >= len(plot_with_estimated_motion.estimated_path) - 5:
             cv2.circle(display_canvas, (est_draw_x, est_draw_y), 3, (0, 100, 255), -1)
 
-        # Optional: Mark keyframes (comment out to match original visualization exactly)
-        #if keyframes and point_idx in keyframes:
-            #cv2.circle(display_canvas, (est_draw_x, est_draw_y), 5, (0, 255, 255), 1)  # Yellow circle for keyframes
+        # Optional: Mark keyframes (commented out to match original visualization)
+        # if keyframes and point_idx in keyframes:
+        #     cv2.circle(display_canvas, (est_draw_x, est_draw_y), 5, (0, 255, 255), 1)
 
     position_text = f"Pos: ({est_x:.2f}, {est_z:.2f})"
     cv2.putText(display_canvas, position_text, (50, 50),
@@ -84,7 +85,7 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
     cv2.putText(display_canvas, length_text, (50, 80),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-    # Optional: Add keyframe count (comment out to match original visualization exactly)
+    # Optional: Add keyframe count and current frame
     if keyframes:
         keyframe_text = f"Keyframes: {len(keyframes)}"
         cv2.putText(display_canvas, keyframe_text, (50, 110),
@@ -112,16 +113,25 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
                 pt1 = tuple(np.round(pt1).astype(int))
                 pt2 = tuple(np.round(pt2).astype(int) + np.array([width, 0]))
                 color = tuple(np.random.randint(0, 255, 3).tolist())
+                # Always draw circles
                 cv2.circle(img_combined, pt1, 3, color, -1)
                 cv2.circle(img_combined, pt2, 3, color, -1)
-                cv2.line(img_combined, pt1, pt2, color, 1)
+                # Draw lines only if toggle is enabled
+                if plot_with_estimated_motion.draw_lines:
+                    cv2.line(img_combined, pt1, pt2, color, 1)
 
         img_resized = cv2.resize(img_combined, (int(img_combined.shape[1] * 0.5), int(img_combined.shape[0] * 0.5)))
         cv2.imshow('Feature Correspondences', img_resized)
-        cv2.waitKey(1)
+
     else:
         print(f"Invalid indices: keyframe_idx={keyframe_idx}, current_frame_idx={current_frame_idx}")
 
     cv2.imshow('Trajectory', display_canvas)
     key = cv2.waitKey(30)
+
+    # Toggle correspondence lines with 'l' key
+    if key == ord('l'):  # ASCII for 'l' is 108
+        plot_with_estimated_motion.draw_lines = not plot_with_estimated_motion.draw_lines
+        print(f"Correspondence lines {'enabled' if plot_with_estimated_motion.draw_lines else 'disabled'}")
+
     return key
