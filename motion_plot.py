@@ -11,12 +11,15 @@ def estimate_motion_from_correspondences(pts1, pts2, K):
     print(f"Number of inliers: {inliers}")
     return R, t, inlier_pts1, inlier_pts2
 
-def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_list, K, keyframe_idx, current_frame_idx, inlier_pts1=None, inlier_pts2=None, max_frames=1000, keyframes=None):
+def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_list, K, keyframe_idx, current_frame_idx, inlier_pts1=None, inlier_pts2=None, max_frames=1000, keyframes=None, set=None):
     if not hasattr(plot_with_estimated_motion, 'canvas'):
         win_size = 800
         plot_with_estimated_motion.canvas = np.zeros((win_size, win_size, 3), dtype=np.uint8)
         plot_with_estimated_motion.center = win_size // 2
-        plot_with_estimated_motion.scale = 0.8
+        if set == 0:
+            plot_with_estimated_motion.scale = 0.8
+        elif set == 1:
+            plot_with_estimated_motion.scale = 0.18
         plot_with_estimated_motion.prev_gt = (plot_with_estimated_motion.center, plot_with_estimated_motion.center)
         plot_with_estimated_motion.prev_est = (plot_with_estimated_motion.center, plot_with_estimated_motion.center)
         plot_with_estimated_motion.estimated_path = []

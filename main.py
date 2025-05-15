@@ -6,7 +6,7 @@ from motion_plot import estimate_motion_from_correspondences, plot_with_estimate
 
 def main():
     # Choose dataset
-    set = 0 # swap to 1 for set 01
+    set = 1 # swap to 1 for set 01
     if set == 0:
         print("Data set 00 chosen")
         # Camera intrinsics (KITTI)
@@ -32,13 +32,13 @@ def main():
         print("No valid dataset chosen")
 
 
-    rate = 10
+    rate = 5
     loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
     images, ground_truth_positions = loader.load_images()
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'SIFT'
+    method = 'ORB'
 
     # Detect features in all images
     detector = FeatureDetector(method)
@@ -59,7 +59,11 @@ def main():
     keyframes = [0]  # Store keyframe indices
 
     # Scale factor for visualization
-    initial_scale = 0.75 * (10/rate)
+    if set == 0:
+        initial_scale = 0.75 * (10/rate)
+    elif set == 1:
+        initial_scale = 2.4 * (10/rate)
+
 
     # Create visualization window
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
@@ -120,7 +124,8 @@ def main():
             inlier_pts1=inlier_pts1,
             inlier_pts2=inlier_pts2,
             max_frames=i + 2,
-            keyframes=keyframes
+            keyframes=keyframes,
+            set=set
         )
 
         if key == 27:  # ESC key
