@@ -6,6 +6,57 @@ import numpy as np
 import os
 import cv2
 
+def load_dataset(dataset_num):
+    # Valid dataset numbers
+    valid_datasets = [0, 1, 3, 5, 9]
+    
+    if dataset_num not in valid_datasets:
+        raise ValueError(f"Invalid dataset number. Choose from: {valid_datasets}")
+    
+    # Format dataset number as two digits
+    dataset_str = f"{dataset_num:02d}"
+    
+    print(f"Data set {dataset_str} chosen")
+    
+    # Define paths
+    path_images = os.path.join("Images", dataset_str, "image_0")
+    path_ground_truth = f'Images/poses_ground_truth/{dataset_str}.txt'
+    path_calib = os.path.join("Images", dataset_str, "calib.txt")
+    
+    # Read calibration file and extract P0 matrix
+    try:
+        with open(path_calib, 'r') as f:
+            lines = f.readlines()
+            
+        # Find the P0 line
+        p0_line = None
+        for line in lines:
+            if line.startswith("P0:"):
+                p0_line = line
+                break
+        
+        if p0_line is None:
+            raise ValueError(f"P0 matrix not found in {path_calib}")
+        
+        # Extract values after "P0:"
+        p0_values = p0_line.split()[1:]  # Skip "P0:" and get the rest
+        p0_values = [float(val) for val in p0_values]
+        
+        # Convert to 3x4 matrix
+        P0 = np.array(p0_values).reshape(3, 4)
+        
+        # Extract 3x3 intrinsic matrix (remove last column)
+        K = P0[:, :3]
+        
+    except FileNotFoundError:
+        print(f"Warning: Calibration file not found at {path_calib}")
+        print("Using default KITTI intrinsics")
+        # Default KITTI intrinsics as fallback
+        K = np.array([[718.856, 0, 607.1928],
+                     [0, 718.856, 185.2157],
+                     [0, 0, 1]])
+    
+    return path_images, path_ground_truth, K
 
 class ImageLoader:
     def __init__(self, path_image, path_ground_truth, desired_rate=None, max_images=None):

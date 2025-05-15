@@ -1,36 +1,20 @@
 import os
 import numpy as np
 import cv2
-from image_processing import ImageLoader, FeatureDetector, FeatureMatcher
+from image_processing import ImageLoader, FeatureDetector, FeatureMatcher, load_dataset
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 def main():
-    # Choose dataset
-    set = 0 # swap to 1 for set 01
-    if set == 0:
-        print("Data set 00 chosen")
-        # Camera intrinsics (KITTI)
-        K = np.array([[718.856, 0, 607.1928],
-                    [0, 718.856, 185.2157],
-                    [0, 0, 1]])
+    dataset_num = 9  # Change this to 0, 1, 2, 3, 5, or 9 as needed
 
-        # Load images
-        path_images = os.path.join("Images", "00", "image_0")
-        path_ground_truth = 'Images/poses_ground_truth/00.txt'
+    # Load the chosen dataset
+    path_images, path_ground_truth, K = load_dataset(dataset_num)
 
-    elif set == 1:
-        print("Data set 01 chosen")
-        # Camera intrinsics (KITTI)
-        K = np.array([[718.856, 0, 607.1928],
-                    [0, 718.856, 185.2157],
-                    [0, 0, 1]])
-
-        # Load images
-        path_images = os.path.join("Images", "01", "image_0")
-        path_ground_truth = 'Images/poses_ground_truth/01.txt'
-    else:
-        print("No valid dataset chosen")
-
+    # Continue with the rest of your code using these variables
+    print(f"Using dataset {dataset_num:02d}")
+    print(f"Images path: {path_images}")
+    print(f"Ground truth path: {path_ground_truth}")
+    print(f"Camera intrinsics:\n{K}")
 
     rate = 10
     loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
@@ -38,7 +22,7 @@ def main():
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'ORB'
+    method = 'SIFT'
 
     # Detect features in all images
     detector = FeatureDetector(method)
@@ -53,16 +37,24 @@ def main():
     t_total = np.zeros((3, 1))
 
     # Keyframe selection parameters
-    min_inliers = 120  # Minimum inliers for reliable motion estimation
+    min_inliers = 50  # Minimum inliers for reliable motion estimation
     min_translation = 0.65  # Minimum translation norm to consider a keyframe
     last_keyframe_idx = 0
     keyframes = [0]  # Store keyframe indices
 
     # Scale factor for visualization
-    if set == 0:
+    if dataset_num == 0:
         initial_scale = 0.75 * (10/rate)
-    elif set == 1:
+    elif dataset_num == 1:
         initial_scale = 2.4 * (10/rate)
+    elif dataset_num == 3:
+        initial_scale = .7 * (10/rate)
+    elif dataset_num == 5:
+        initial_scale = .8 * (10/rate)
+    elif dataset_num == 9:
+        initial_scale = 1 * (10/rate)
+    else:
+        initial_scale = 1 * (10/rate)
 
 
     # Create visualization window
@@ -125,7 +117,7 @@ def main():
             inlier_pts2=inlier_pts2,
             max_frames=i + 2,
             keyframes=keyframes,
-            set=set
+            set=dataset_num
         )
 
         if key == 27:  # ESC key
