@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import cv2
-from image_processing import ImageLoader, FeatureDetecor, FeatureMatcher
+from image_processing import ImageLoader, FeatureDetector, FeatureMatcher
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 def main():
@@ -13,16 +13,16 @@ def main():
     # Load images
     path_images = os.path.join("Images", "00", "image_0")
     path_ground_truth = 'Images/poses_ground_truth/00.txt'
-    rate = 10
-    loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)  # Load all available images
+    rate = 5
+    loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
     images, ground_truth_positions = loader.load_images()
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'ORB'  # Choose between SIFT, ORB and AKAZE
+    method = 'ORB'
 
     # Detect features in all images
-    detector = FeatureDetecor(method)
+    detector = FeatureDetector(method)
     features = detector.detect_all_features(images)
     print(f"Extracted features from {len(features)} images")
 
@@ -30,45 +30,63 @@ def main():
     matcher = FeatureMatcher(method)
 
     # Initialize motion tracking variables
-    R_total = np.eye(3)  # Identity rotation matrix
-    t_total = np.zeros((3, 1))  # Zero translation vector
+    R_total = np.eye(3)
+    t_total = np.zeros((3, 1))
 
-    # Scale factor for visualization (may need adjustment)
-    initial_scale = 0.75 * (10/rate)  # Increased scale factor to make motion more visible
+    # Keyframe selection parameters
+    min_inliers = 10  # Minimum inliers for reliable motion estimation
+    min_translation = 0.01  # Minimum translation norm to consider a keyframe
+    last_keyframe_idx = 0
+    keyframes = [0]  # Store keyframe indices
+
+    # Scale factor for visualization
+    initial_scale = 0.75 * (10/rate)
 
     # Create visualization window
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Trajectory', 800, 800)
 
-    # Process consecutive image pairs
+    # Process image pairs
     for i in range(len(features) - 1):
-        # Get current pair of features
-        kp1, des1 = features[i]
+        # Get current pair of features (compare with last keyframe)
+        kp1, des1 = features[last_keyframe_idx]
         kp2, des2 = features[i + 1]
 
-        # Match features between consecutive images
+        # Match features between last keyframe and current frame
         coords1, coords2 = matcher.match_features(kp1, des1, kp2, des2)
         num_matches = len(coords1)
-        print(f"Good matches between frames {i} and {i + 1}: {num_matches}")
+        print(f"Good matches between frames {last_keyframe_idx} and {i + 1}: {num_matches}")
 
         # Skip if too few matches
         if num_matches < 8:
-            print(f"Warning: Too few matches ({num_matches}) to estimate motion reliably. Skipping frame {i + 1}.")
+            print(f"Warning: Too few matches ({num_matches}). Skipping frame {i + 1}.")
             continue
 
-        # Estimate motion from matched feature coordinates
+        # Estimate motion
         R, t, inlier_pts1, inlier_pts2 = estimate_motion_from_correspondences(coords1, coords2, K)
 
-        # IMPORTANT: Update rotation first, then translation
-        # For visual odometry, we need to invert the motion (since the camera moves opposite to perceived motion)
+        # Check for sufficient inliers
+        if len(inlier_pts1) < min_inliers:
+            print(f"Warning: Too few inliers ({len(inlier_pts1)} < {min_inliers}). Skipping frame {i + 1}.")
+            continue
+
+        # Check for sufficient translation (to detect stationary car)
+        translation_norm = np.linalg.norm(t)
+        if translation_norm < min_translation:
+            print(f"Warning: Negligible motion (translation norm: {translation_norm:.3f} < {min_translation}). Skipping frame {i + 1}.")
+            continue
+
+        # Frame qualifies as a keyframe
+        print(f"Frame {i + 1} selected as keyframe (translation norm: {translation_norm:.3f})")
+        keyframes.append(i + 1)
+        last_keyframe_idx = i + 1
+
+        # Update motion (invert as before)
         R_inv = R.T
         t_inv = -R_inv @ t
+        R_total = R_inv @ R_total
+        t_total = t_total + initial_scale * (R_total @ t_inv)
 
-        # Update accumulated motion
-        R_total = R_inv @ R_total  # Update total rotation
-        t_total = t_total + initial_scale * (R_total @ t_inv)  # Apply rotation to translation before accumulating
-
-        # Print current motion estimate
         print(f"Frame {i + 1}: Translation (x,y,z): ({t_total[0, 0]:.3f}, {t_total[1, 0]:.3f}, {t_total[2, 0]:.3f})")
 
         # Visualize current trajectory
@@ -78,28 +96,24 @@ def main():
             t_total,
             images,
             K,
-            frame_index=i + 1,
+            keyframe_idx=last_keyframe_idx,  # Last keyframe
+            current_frame_idx=i + 1,         # Current frame
             inlier_pts1=inlier_pts1,
             inlier_pts2=inlier_pts2,
-            max_frames=i + 2
+            max_frames=i + 2,
+            keyframes=keyframes
         )
 
-        # Check for ESC key to exit
         if key == 27:  # ESC key
             print("ESC pressed. Exiting...")
             break
 
-    # Check for ESC key to exit
     print("\nProcessing complete. Press ESC to exit.")
     while True:
-        key = cv2.waitKey(0)  # Wait indefinitely for a key press
-        if key == 27:  # ESC key
-            print("ESC pressed. Exiting...")
+        key = cv2.waitKey(0)
+        if key == 27:
             break
     cv2.destroyAllWindows()
 
-
 if __name__ == "__main__":
     main()
-
-# dette er main
