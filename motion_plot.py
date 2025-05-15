@@ -86,6 +86,10 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
         keyframe_text = f"Keyframes: {len(keyframes)}"
         cv2.putText(display_canvas, keyframe_text, (50, 110),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+    if current_frame_idx:
+        keyframe_text = f"Current frame: {current_frame_idx}"
+        cv2.putText(display_canvas, keyframe_text, (50, 130),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
     # Display feature correspondences (last keyframe on left, current frame on right)
     if 0 <= keyframe_idx < len(image_list) and 0 <= current_frame_idx < len(image_list):

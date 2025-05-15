@@ -13,13 +13,13 @@ def main():
     # Load images
     path_images = os.path.join("Images", "00", "image_0")
     path_ground_truth = 'Images/poses_ground_truth/00.txt'
-    rate = 5
+    rate = 10
     loader = ImageLoader(path_images, path_ground_truth, desired_rate=rate)
     images, ground_truth_positions = loader.load_images()
     print(f"Loaded {len(images)} images")
 
     # Choose feature detection method
-    method = 'ORB'
+    method = 'SIFT'
 
     # Detect features in all images
     detector = FeatureDetector(method)
@@ -34,8 +34,8 @@ def main():
     t_total = np.zeros((3, 1))
 
     # Keyframe selection parameters
-    min_inliers = 10  # Minimum inliers for reliable motion estimation
-    min_translation = 0.01  # Minimum translation norm to consider a keyframe
+    min_inliers = 60  # Minimum inliers for reliable motion estimation
+    min_translation = 0.75  # Minimum translation norm to consider a keyframe
     last_keyframe_idx = 0
     keyframes = [0]  # Store keyframe indices
 
