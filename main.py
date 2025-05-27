@@ -1,14 +1,14 @@
 import os
 import numpy as np
 import cv2
-from image_processing import ImageLoader, FeatureDetector, FeatureMatcher, load_dataset
+from image_processing import ImageLoader, FeatureDetector, FeatureMatcher, get_path_and_intrinsic, load_features_from_hdf5
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 def main():
     dataset_num = 9  # Change this to 0, 1, 2, 3, 5, or 9 as needed
 
     # Load the chosen dataset
-    path_images, path_ground_truth, K = load_dataset(dataset_num)
+    path_images, path_ground_truth, K = get_path_and_intrinsic(dataset_num)
 
     # Continue with the rest of your code using these variables
     print(f"Using dataset {dataset_num:02d}")
@@ -24,10 +24,20 @@ def main():
     # Choose feature detection method
     method = 'SIFT'
 
-    # Detect features in all images
-    detector = FeatureDetector(method)
-    features = detector.detect_all_features(images)
-    print(f"Extracted features from {len(features)} images")
+    # Try to load pre-computed features
+    features_filename = f"Sequence {dataset_num:02d} features {method}.h5"
+    
+    if os.path.exists(features_filename):
+        print(f"Loading pre-computed features from {features_filename}")
+        features = load_features_from_hdf5(features_filename)
+        print(f"Loaded features from {len(features)} images")
+    else:
+        print(f"Pre-computed features not found ({features_filename})")
+        print("Computing features on-the-fly...")
+        # Fallback to original method
+        detector = FeatureDetector(method)
+        features = detector.detect_all_features(images)
+        print(f"Extracted features from {len(features)} images")
 
     # Feature matching setup
     matcher = FeatureMatcher(method)
@@ -41,6 +51,7 @@ def main():
     min_translation = 0.65  # Minimum translation norm to consider a keyframe
     last_keyframe_idx = 0
     keyframes = [0]  # Store keyframe indices
+
 
     # Scale factor for visualization
     if dataset_num == 0:

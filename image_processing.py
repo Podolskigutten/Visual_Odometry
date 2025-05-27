@@ -2,11 +2,9 @@
 import cv2
 import os
 import numpy as np
+import h5py
 
-import os
-import cv2
-
-def load_dataset(dataset_num):
+def get_path_and_intrinsic(dataset_num):
     # Valid dataset numbers
     valid_datasets = [0, 1, 3, 5, 9]
     
@@ -57,6 +55,41 @@ def load_dataset(dataset_num):
                      [0, 0, 1]])
     
     return path_images, path_ground_truth, K
+
+def load_features_from_hdf5(filename):
+    """Load features from HDF5 file in the same format as FeatureDetector.detect_all_features()"""
+    
+    features = []
+    
+    with h5py.File(filename, 'r') as f:
+        num_images = f.attrs['num_images']
+        
+        for i in range(num_images):
+            img_key = f'image_{i:06d}'
+            if img_key in f:
+                kp_data = f[img_key]['keypoints'][:]
+                desc_data = f[img_key]['descriptors'][:]
+                
+                if len(kp_data) > 0:
+                    # Convert back to cv2.KeyPoint objects
+                    keypoints = []
+                    for kp_row in kp_data:
+                        kp = cv2.KeyPoint(x=kp_row[0], y=kp_row[1], size=1, 
+                                        angle=kp_row[2], response=kp_row[3], 
+                                        octave=int(kp_row[4]), class_id=int(kp_row[5]))
+                        keypoints.append(kp)
+                    
+                    descriptors = desc_data if len(desc_data) > 0 else None
+                else:
+                    keypoints = []
+                    descriptors = None
+                    
+                features.append((keypoints, descriptors))
+            else:
+                # Handle missing image data
+                features.append(([], None))
+    
+    return features
 
 class ImageLoader:
     def __init__(self, path_image, path_ground_truth, desired_rate=None, max_images=None):
