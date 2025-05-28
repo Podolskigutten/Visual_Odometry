@@ -72,6 +72,7 @@ def main():
     cv2.namedWindow('Trajectory', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Trajectory', 800, 800)
 
+
     # Process image pairs
     for i in range(len(features) - 1):
         # Get current pair of features (compare with last keyframe)
@@ -130,6 +131,12 @@ def main():
             keyframes=keyframes,
             set=dataset_num
         )
+
+        while i == 0:
+            key = cv2.waitKey(0)
+            print(f"Key code: {key}")  # Optional: see what code is returned
+            if key == 13:  # Enter key
+                break
 
         if key == 27:  # ESC key
             print("ESC pressed. Exiting...")
