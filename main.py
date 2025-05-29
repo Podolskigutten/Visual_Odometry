@@ -5,7 +5,7 @@ from image_processing import ImageLoader, FeatureDetector, FeatureMatcher, get_p
 from motion_plot import estimate_motion_from_correspondences, plot_with_estimated_motion
 
 def main():
-    dataset_num = 9  # Change this to 0, 1, 2, 3, 5, or 9 as needed
+    dataset_num = 9 #0  1   9  
 
     # Load the chosen dataset
     path_images, path_ground_truth, K = get_path_and_intrinsic(dataset_num)
