@@ -19,13 +19,13 @@ def plot_with_estimated_motion(ground_truth_positions, R_total, t_total, image_l
         if set == 0:
             plot_with_estimated_motion.scale = 0.8
         elif set == 1:
-            plot_with_estimated_motion.scale = 0.18
+            plot_with_estimated_motion.scale = 0.2
         elif set == 3:
             plot_with_estimated_motion.scale = 0.5
         elif set == 5:
             plot_with_estimated_motion.scale = 1
         elif set == 9:
-            plot_with_estimated_motion.scale = 0.3
+            plot_with_estimated_motion.scale = 0.7
         else:
             plot_with_estimated_motion.scale = 0.5
 
