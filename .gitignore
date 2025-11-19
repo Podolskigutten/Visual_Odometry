@@ -3,3 +3,4 @@ __pycache__
 __pycache__/*.h5
 __pycache__/*.doc
 __pycache__/*.docx
+Images/*
