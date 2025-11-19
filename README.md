@@ -4,7 +4,7 @@ A monocular visual odometry system that estimates camera trajectory in real-time
 
 ## Demo
 
-![Visual Odometry Demo](Results/vo_demo.mp4)
+![Visual Odometry Demo](Results/vo_demo.gif)
 
 *Real-time trajectory estimation showing feature matching (top) and estimated path vs. ground truth (bottom)*
 
@@ -50,18 +50,25 @@ The system displays:
 
 ## Results
 
-The system successfully tracks camera motion across different KITTI sequences:
+The system successfully tracks camera motion across different KITTI sequences with varying environmental conditions:
 
-**Sequence 09 - Suburban/Urban Environment:**
+**Sequence 00 - Urban Environment:**
+![Sequence 0 Results](Results/ImgSet_0.png)
+
+**Sequence 01 - Highway Environment:**
+![Sequence 1 Results](Results/ImgSet_1.png)
+
+**Sequence 09 - Suburban/Urban Mixed:**
 ![Sequence 9 Results](Results/ImgSet_9.png)
 
-The estimated trajectory (red) closely follows the ground truth path (green), demonstrating robust feature tracking and motion estimation even through turns and varying road conditions.
+The estimated trajectories (red) closely follow the ground truth paths (green) across all sequences, demonstrating robust feature tracking and motion estimation through different scenarios including sharp turns, highway driving, and mixed urban/suburban environments.
 
 **Key Performance Characteristics:**
 - Real-time processing after feature preprocessing (30+ FPS)
 - Robust feature matching with RANSAC outlier rejection
 - Keyframe selection strategy for improved stability
 - Handles sequences of 1000+ frames
+- Accurate tracking across diverse road conditions
 
 ## Installation
 
